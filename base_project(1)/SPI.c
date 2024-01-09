@@ -1,3 +1,4 @@
+
 /**********************************************************************************************************************
  * \file    SPI.c
  * \brief
@@ -10,28 +11,22 @@
 /*-----------------------------------------------------Includes------------------------------------------------------*/
 /*********************************************************************************************************************/
 
-#include <stdio.h>
-#include <string.h>
 #include "SPI.h"
 
 /*********************************************************************************************************************/
 /*-------------------------------------------------Global variables--------------------------------------------------*/
 /*********************************************************************************************************************/
 
+#define SPI_BUFFER_SIZE 8
+uint8 spiTxBuffer[SPI_BUFFER_SIZE] = {1, 2, 3, 4, 5, 6, 7, 8};
+uint8 spiRxBuffer[SPI_BUFFER_SIZE];
+
 IfxQspi_SpiMaster spi;
 IfxQspi_SpiMaster_Channel spiChannel;
 
-/*********************************************************************************************************************/
-/*--------------------------------------------Private Variables/Constants--------------------------------------------*/
-/*********************************************************************************************************************/
-
-/*********************************************************************************************************************/
-/*------------------------------------------------Function Prototypes------------------------------------------------*/
-/*********************************************************************************************************************/
-
-/*********************************************************************************************************************/
-/*---------------------------------------------Function Implementations----------------------------------------------*/
-/*********************************************************************************************************************/
+// Toggle Pins
+// #include <IfxPort_Io.h>
+// #include <IfxPort_PinMap.h>
 
 IFX_INTERRUPT(qspi0TxISR, 0, IFX_INTPRIO_QSPI1_TX)
 {
@@ -47,6 +42,18 @@ IFX_INTERRUPT(qspi0ErISR, 0, IFX_INTPRIO_QSPI1_ER)
 {
     IfxQspi_SpiMaster_isrError(&spi);
 }
+
+/*********************************************************************************************************************/
+/*--------------------------------------------Private Variables/Constants--------------------------------------------*/
+/*********************************************************************************************************************/
+
+/*********************************************************************************************************************/
+/*------------------------------------------------Function Prototypes------------------------------------------------*/
+/*********************************************************************************************************************/
+
+/*********************************************************************************************************************/
+/*---------------------------------------------Function Implementations----------------------------------------------*/
+/*********************************************************************************************************************/
 
 void spi_init()
 {
@@ -86,8 +93,10 @@ void spi_init()
     spiMasterChannelConfig.base.baudrate = 5000000;
 
     // select pin configuration
-    const IfxQspi_SpiMaster_Output slsOutput = {&IfxQspi1_SLSO9_P10_5_OUT, IfxPort_OutputMode_pushPull,
-                                                IfxPort_PadDriver_cmosAutomotiveSpeed1};
+    const IfxQspi_SpiMaster_Output slsOutput = {
+        &IfxQspi1_SLSO9_P10_5_OUT,
+        IfxPort_OutputMode_pushPull,
+        IfxPort_PadDriver_cmosAutomotiveSpeed1};
     spiMasterChannelConfig.sls.output = slsOutput;
 
     // initialize channel
@@ -95,28 +104,14 @@ void spi_init()
     IfxQspi_SpiMaster_initChannel(&spiChannel, &spiMasterChannelConfig);
 }
 
-void spi_read(uint8 reg_addr, uint8 *reg_data, uint32 len)
+uint32 cnt = 0;
+
+void spi_loop()
 {
-    uint8 spiTxBuffer[SPI_BUFFER_SIZE];
-    uint8 spiRxBuffer[SPI_BUFFER_SIZE];
-
-    spiTxBuffer[0] = reg_addr;
-
+    // wait until transfer of previous data stream is finished
     while (IfxQspi_SpiMaster_getStatus(&spiChannel) == SpiIf_Status_busy)
         ;
 
-    IfxQspi_SpiMaster_exchange(&spiChannel, spiTxBuffer, spiRxBuffer, SPI_BUFFER_SIZE);
-}
-
-void spi_write(uint8 reg_addr, uint8 *reg_data, uint32 len)
-{
-    uint8 spiTxBuffer[SPI_BUFFER_SIZE];
-
-    spiTxBuffer[0] = reg_addr;
-    memcpy(&spiTxBuffer[1], reg_data, len);
-
-    while (IfxQspi_SpiMaster_getStatus(&spiChannel) == SpiIf_Status_busy)
-        ;
-
-    IfxQspi_SpiMaster_exchange(&spiChannel, spiTxBuffer, NULL_PTR, SPI_BUFFER_SIZE);
+    // send new stream
+    IfxQspi_SpiMaster_exchange(&spiChannel, &spiTxBuffer[cnt], NULL_PTR, SPI_BUFFER_SIZE);
 }

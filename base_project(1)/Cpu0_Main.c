@@ -13,8 +13,6 @@
 #include <Asclin/Asc/IfxAsclin_Asc.h> //Needed for UART
 #include <Bsp.h>                      //Board support functions (for the waitTime function)
 #include <UART.h>
-#include "SPI.h"
-#include "bmp3_aurix.h"
 IfxCpu_syncEvent g_cpuSyncEvent = 0;
 
 #define WAIT_TIME 1000
@@ -34,9 +32,7 @@ int core0_main(void) {
     IfxCpu_emitEvent(&g_cpuSyncEvent);
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
     
-    spi_init();
     initUART();
-
 
     while(1) {
         //UART TEST CODE - REMOVE FOR YOUR OWN PROJECT****************************
