@@ -26,9 +26,9 @@
 #define ASC_TX_BUFFER_SIZE      64                                  // Definition of the buffer size
 #define ASC_RX_BUFFER_SIZE      64                                  // Definition of the buffer size
 
-#define INTPRIO_ASCLIN3_TX 1                                        // Interrupt priority for UART transfer
-#define INTPRIO_ASCLIN3_RX 2                                        // Interrupt priority for UART receive
-#define INTPRIO_ASCLIN3_ER 3                                        // Interrupt priority for UART Error
+#define INTPRIO_ASCLIN3_TX 6                                        // Interrupt priority for UART transfer
+#define INTPRIO_ASCLIN3_RX 7                                        // Interrupt priority for UART receive
+#define INTPRIO_ASCLIN3_ER 8                                        // Interrupt priority for UART Error
 
 /*************************************************************************************************************/
 /*-------------------------------------------------Global variables------------------------------------------*/

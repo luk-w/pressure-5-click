@@ -36,19 +36,14 @@ int core0_main(void) {
     
     spi_init();
     initUART();
+    bmp3_aurix_init();
 
 
     while(1) {
-        //UART TEST CODE - REMOVE FOR YOUR OWN PROJECT****************************
-        uint8 byte = 'A';
-        uart_blockingWrite(byte);
-        uart_blockingWrite('\n');
 
         waitTime(IfxStm_getTicksFromMilliseconds(BSP_DEFAULT_TIMER, WAIT_TIME));
+        bmp3_aurix_readout();
 
-        uint8 msg[11] = "Hello UART\n";
-        uart_sendMessage((uint8*)msg, sizeof(msg));
-        //END UART TEST CODE *****************************************************
     }
-    return (1);
+
 }
